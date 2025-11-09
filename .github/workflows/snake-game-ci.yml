@@ -1,0 +1,45 @@
+name: Snake Game CI
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'snakegame.py'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'snakegame.py'
+
+jobs:
+  test-snake-game:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pygame flake8 pylint
+    
+    - name: Lint with flake8
+      run: |
+        flake8 snakegame.py --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 snakegame.py --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Lint with pylint
+      run: |
+        pylint snakegame.py --exit-zero
+    
+    - name: Check syntax
+      run: |
+        python -m py_compile snakegame.py
+    
+    - name: Verify pygame import
+      run: |
+        python -c "import pygame; print(f'Pygame version: {pygame.version.ver}')"
